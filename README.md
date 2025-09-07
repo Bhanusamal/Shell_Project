@@ -24,5 +24,6 @@ The focus is on data exploration and gaining initial insights.
 
 ## Files in This Repository
 - `week_1_project.ipynb` → Jupyter Notebook containing the analysis.
+- `week_2_project.ipynb` → Worked on previous file using EDA (Exploratory data analysis), Data transformation and Feature selection.
 - `climate_risk_dataset.csv` → Dataset used for exploration.
 - `README.md` → Project documentation.
