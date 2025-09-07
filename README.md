@@ -1,7 +1,7 @@
 # Week 1 Project - Climate Risk & Disaster Management
 
 ## Overview
-This project is part of the Week 1 assignment for understanding datasets related to **Climate Risk and Disaster Management**.  
+This project is part of the Weekly assignment for understanding datasets related to **Climate Risk and Disaster Management**.  
 The focus is on data exploration and gaining initial insights.
 
 ## Project Objectives
