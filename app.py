@@ -2,33 +2,43 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+from sklearn.cluster import KMeans  # Only if you're adding clustering
 
-# Load trained model
-model = joblib.load("climate_risk_rf_model.pkl")
+# Load saved models
+selected_features = joblib.load("selected_features.pkl")
+pca = joblib.load("pca_model.pkl")
 
-# Title
-st.title("🔥 Climate Risk Prediction App")
-st.subheader("Predict Fire Risk Based on Environmental Features")
+st.title("🌍 Climate Feature Explorer")
+st.markdown("Project environmental data into PCA space to explore patterns and trends.")
 
-# Define input fields dynamically (example features — replace with actual ones)
-feature_names = ['Temperature', 'Humidity', 'WindSpeed', 'Rainfall', 'SoilMoisture']  # Update as needed
+st.sidebar.header("Enter Environmental Data")
 user_input = {}
-
-st.sidebar.header("Input Features")
-for feature in feature_names:
+for feature in selected_features:
     user_input[feature] = st.sidebar.number_input(f"{feature}", value=0.0)
 
-# Convert input to DataFrame
 input_df = pd.DataFrame([user_input])
+input_df.fillna(0, inplace=True)
 
-# Predict
-if st.button("Predict Fire Risk"):
-    prediction = model.predict(input_df)[0]
-    proba = model.predict_proba(input_df)[0]
+if st.button("Project into PCA Space"):
+    projection = pca.transform(input_df)
+    st.success("✅ Projection complete!")
+    st.write("📍 PCA Coordinates:", {f"PC{i+1}": round(val, 4) for i, val in enumerate(projection[0])})
 
-    st.success(f"Prediction: {'🔥 Fire Risk' if prediction == 1 else '✅ No Fire Risk'}")
-    st.write(f"Confidence: {np.max(proba)*100:.2f}%")
+    # Optional: Load historical PCA data
+    try:
+        historical_df = pd.read_csv("pca_transformed.csv")
+        historical_df.columns = [f"PC{i+1}" for i in range(historical_df.shape[1])]
+        user_point = pd.DataFrame(projection, columns=historical_df.columns)
+        combined = pd.concat([historical_df, user_point], ignore_index=True)
 
-# Footer
-st.markdown("---")
-st.markdown("Built by Bhanuteja Naresh Samal | Climate Risk Modeling Project")
+        st.subheader("📊 PCA Projection with Historical Context")
+        st.scatter_chart(combined.iloc[:, :2])  # PC1 vs PC2
+
+        # Optional clustering
+        kmeans = KMeans(n_clusters=3, random_state=42)
+        clusters = kmeans.fit_predict(historical_df)
+        user_cluster = kmeans.predict(user_point)[0]
+        st.info(f"🧭 Your input falls into Cluster {user_cluster}")
+
+    except FileNotFoundError:
+        st.warning("No historical PCA data found. Upload 'pca_transformed.csv' to enable comparison.")
